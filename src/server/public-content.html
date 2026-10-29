@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+  <g2:evaluate var="jvar_out">
+    var slug = RP.getParameterValue('slug');
+    new x_1863391_cms_now.PublicContentRenderer().render(slug);
+  </g2:evaluate>
+  <g2:no_escape>$[jvar_out]</g2:no_escape>
+</j:jelly>

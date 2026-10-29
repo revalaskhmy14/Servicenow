@@ -1,0 +1,587 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string",
+          "description": "unique; must not contain invalid characters"
+        },
+        "email": {
+          "type": "string",
+          "description": "unique when configured; must be valid email format"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "passwordHash": {
+          "type": "string",
+          "description": "optional \u2014 account can be passwordless"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Enabled",
+            "Disabled"
+          ],
+          "default": "Enabled"
+        },
+        "timeZone": {
+          "type": "string"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "status"
+      ]
+    },
+    "Role": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "unique; must not contain /"
+        },
+        "description": {
+          "type": "string"
+        },
+        "isSystemRole": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "isAdminRole": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "isSpecial": {
+          "type": "boolean",
+          "default": "false"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "isSystemRole",
+        "isAdminRole",
+        "isSpecial"
+      ]
+    },
+    "Roleclaim": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "roleId": {
+          "type": "string"
+        },
+        "claimType": {
+          "type": "string",
+          "description": "must be permission claim type"
+        },
+        "claimValue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "roleId",
+        "claimType",
+        "claimValue"
+      ]
+    },
+    "Contentitem": {
+      "type": "object",
+      "properties": {
+        "contentItemId": {
+          "type": "string"
+        },
+        "contentItemVersionId": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "description": "required; not empty"
+        },
+        "bodyText": {
+          "type": "string"
+        },
+        "priorityLevel": {
+          "type": "integer",
+          "description": "min=1; max=10"
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "publicationDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "relatedLink": {
+          "type": "string"
+        },
+        "customHtml": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "string",
+          "description": "leaf terms only"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "featuredImagePath": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Published",
+            "Draft",
+            "Removed"
+          ],
+          "default": "Draft"
+        },
+        "modifiedDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isLatest": {
+          "type": "boolean"
+        },
+        "isPublished": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "contentItemId",
+        "contentItemVersionId",
+        "contentType",
+        "title",
+        "status",
+        "modifiedDate",
+        "isLatest",
+        "isPublished"
+      ]
+    },
+    "Contenttypedefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "not null/empty; max 1024 characters"
+        },
+        "name": {
+          "type": "string",
+          "description": "must start with ASCII letter; normalized via ToSafeName(); unique"
+        },
+        "creatable": {
+          "type": "boolean"
+        },
+        "listable": {
+          "type": "boolean"
+        },
+        "draftable": {
+          "type": "boolean"
+        },
+        "versionable": {
+          "type": "boolean"
+        },
+        "securable": {
+          "type": "boolean"
+        },
+        "settings": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "displayName",
+        "name"
+      ]
+    },
+    "Contentpartfielddefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "contentTypeId": {
+          "type": "string"
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "fieldType": {
+          "type": "string",
+          "enum": [
+            "TextField",
+            "DateField",
+            "CustomBooleanField",
+            "ContentPicker",
+            "Numeric",
+            "Boolean",
+            "Date",
+            "Link",
+            "Html",
+            "Markdown",
+            "Media"
+          ]
+        },
+        "position": {
+          "type": "integer",
+          "default": "0",
+          "description": "0-based integer"
+        },
+        "isSystemDefined": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "settings": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "contentTypeId",
+        "fieldName",
+        "fieldType"
+      ]
+    },
+    "Tenant": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "letters only, no spaces; unique; root tenant must be Default"
+        },
+        "description": {
+          "type": "string"
+        },
+        "requestUrlPrefix": {
+          "type": "string"
+        },
+        "recipeName": {
+          "type": "string",
+          "enum": [
+            "Blog",
+            "Headless",
+            "Agency",
+            "Blank"
+          ]
+        },
+        "databaseProvider": {
+          "type": "string",
+          "enum": [
+            "Sqlite",
+            "SqlConnection",
+            "Postgres",
+            "MySql"
+          ],
+          "default": "Sqlite"
+        },
+        "databaseConnectionString": {
+          "type": "string",
+          "description": "required for non-Sqlite providers"
+        },
+        "tablePrefix": {
+          "type": "string"
+        },
+        "databaseSchema": {
+          "type": "string"
+        },
+        "featureProfile": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Running",
+            "Uninitialized"
+          ],
+          "default": "Uninitialized"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "recipeName",
+        "databaseProvider",
+        "status"
+      ]
+    },
+    "Feature": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "featureName": {
+          "type": "string"
+        },
+        "module": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Infrastructure",
+            "Content Management"
+          ]
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "isAlwaysEnabled": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "needsUpdate": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "needsVersionUpdate": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "isRecentlyInstalled": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "enabledByDependencyOnly": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "dependencies": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "featureName",
+        "module",
+        "category",
+        "isEnabled"
+      ]
+    },
+    "Deploymentplan": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "planName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "planName"
+      ]
+    },
+    "Deploymentstep": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "planId": {
+          "type": "string"
+        },
+        "stepType": {
+          "type": "string",
+          "enum": [
+            "ContentDefinitionDeploymentStep",
+            "DeleteContentDefinitionDeploymentStep",
+            "ContentItemDeploymentStep",
+            "AllContentDeploymentStep",
+            "QueryBasedContentDeploymentStep",
+            "AllQueriesDeploymentStep",
+            "ExportContentToDeploymentTargetDeploymentStep",
+            "AllRolesDeploymentStep"
+          ]
+        },
+        "configuration": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "planId",
+        "stepType"
+      ]
+    },
+    "Query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "queryName": {
+          "type": "string"
+        },
+        "queryType": {
+          "type": "string",
+          "enum": [
+            "Lucene",
+            "SQL",
+            "GraphQL"
+          ]
+        },
+        "parameters": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "queryName",
+        "queryType"
+      ]
+    },
+    "Securitysettings": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "adminRoleName": {
+          "type": "string",
+          "default": "Administrator"
+        },
+        "enableSelfServiceRegistration": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "requireEmailVerification": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "requireAdministratorApproval": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "renderRegistrationWithSiteTheme": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "disableNewExternalRegistrations": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "disableLocalLogin": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "requireTwoFactorAuthentication": {
+          "type": "boolean",
+          "default": "false"
+        },
+        "contentSecurityPolicy": {
+          "type": "string"
+        },
+        "referrerPolicy": {
+          "type": "string",
+          "enum": [
+            "no-referrer",
+            "no-referrer-when-downgrade",
+            "same-origin",
+            "origin",
+            "strict-origin",
+            "origin-when-cross-origin",
+            "strict-origin-when-cross-origin",
+            "unsafe-url"
+          ],
+          "default": "no-referrer"
+        },
+        "permissionsPolicy": {
+          "type": "string"
+        },
+        "backgroundServicePollingTime": {
+          "type": "string",
+          "default": "00:01:00"
+        },
+        "backgroundServiceMinimumIdleTime": {
+          "type": "string",
+          "default": "00:00:10"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Datamigrationrecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "featureId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "default": "0"
+        }
+      },
+      "required": [
+        "id",
+        "featureId",
+        "version"
+      ]
+    },
+    "Contentversionpruningsettings": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "description": "minimum 0"
+        },
+        "versionsToKeep": {
+          "type": "integer",
+          "description": "minimum 0"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  }
+}
